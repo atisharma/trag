@@ -8,7 +8,7 @@ Command-line utilities are provided for fetching markdown text to stdout.
 
 (import click)
 
-(import trag [web])
+(import trag [retrieve])
 
 
 (defn [(click.group)]
@@ -16,24 +16,24 @@ Command-line utilities are provided for fetching markdown text to stdout.
 
 (defn [(click.command) (click.argument "query") (click.option "-r" "--top" :default 6 :type int :help "Return just top n results.")]
   arxiv [query top]
-  (click.echo (web.arxiv query -n top)))
+  (click.echo (retrieve.arxiv query -n top)))
 
 (cli.add-command arxiv)
 
 
 (defn [(click.command) (click.argument "location")] url [location]
-  (click.echo (web.url location)))
+  (click.echo (retrieve.url location)))
 
 (cli.add-command url)
 
   
 (defn [(click.command) (click.argument "query")] wikipedia [query]
-  (click.echo (web.wikipedia query)))
+  (click.echo (retrieve.wikipedia query)))
   
 (cli.add-command wikipedia)
 
   
 (defn [(click.command) (click.argument "id")] youtube [id]
-  (click.echo (web.youtube id)))
+  (click.echo (retrieve.youtube id)))
   
 (cli.add-command youtube)

@@ -9,20 +9,23 @@ from a variety of non-plaintext sources on the web.
 (import hyjinx.lib [first is-url now])
 
 (import httpx)
+(import json)
 (import locale)
 (import lxml)
 (import os)
 (import re)
+(import subprocess)
 
 (import lxml-html-clean [Cleaner])
 (import markdownify [markdownify])
 (import urllib.parse [urlparse])
 
 (import arxiv [Search :as arxiv-search])
+(import duckduckgo-search [DDGS])
 (import wikipedia :as wiki)
 (import youtube_transcript_api [YouTubeTranscriptApi])
-(import youtube_transcript_api.formatters [TextFormatter])
 (import youtube_transcript_api._errors [TranscriptsDisabled])
+(import youtube_transcript_api.formatters [TextFormatter])
 
 (require trag.template [deftemplate])
 
@@ -89,23 +92,28 @@ from a variety of non-plaintext sources on the web.
 ;; * Web URL
 ;; ----------------------------------------------------
 
-(defn get-url [url]
-  "Fetch a URL's content as cleaned markdown text."
+(defn get-url-raw [url]
+  "Fetch a URL's content unmodified."
   (if (is-url url)
-      (let [response (.get httpx url)
-            cleaner (Cleaner :javascript True :style True)]
-        (match response.status-code
-          200 (-> response.text
-                  (lxml.html.fromstring) 
-                  (cleaner.clean_html)
-                  (lxml.html.tostring)
-                  (markdownify :heading-style "ATX" :strip "style")
-                  (.replace "\r\n" "\n")
-                  (.replace "\r" "\n")
-                  (.strip)
-                  (clean-web-md))
-          otherwise (.raise_for_status response)))
-      (raise (ValueError f"Fetching {url} failed (implausible url)."))))
+    (let [response (.get httpx url)]
+      (match response.status-code
+        200 response.text
+        otherwise (.raise_for_status response)))
+    (raise (ValueError f"Fetching {url} failed (implausible url)."))))
+
+(defn get-url-md [url]
+  "Fetch a URL's content as cleaned markdown text."
+  (let [raw (get-url-raw url)
+        cleaner (Cleaner :javascript True :style True)]
+    (-> raw
+        (lxml.html.fromstring) 
+        (cleaner.clean_html)
+        (lxml.html.tostring)
+        (markdownify :heading-style "ATX" :strip "style")
+        (.replace "\r\n" "\n")
+        (.replace "\r" "\n")
+        (.strip)
+        (clean-web-md))))
 
 (defn filename-from-url [url]
   "Sanitise a url into a filename."
@@ -132,12 +140,14 @@ from a variety of non-plaintext sources on the web.
 
 (defn url [url]
   "Load a URL as markdown text."
-  (retrieval "url"
-    :accessed (now)
-    :url url
-    :document (get-url url)))
+  (let [data (get-url-md url)]
+    (retrieval "url"
+      :accessed (now)
+      :url url
+      :document (get-url data))))
   
   
+
 ;; * arXiv
 ;; ----------------------------------------------------
 
@@ -177,3 +187,65 @@ from a variety of non-plaintext sources on the web.
         :related (.join ", " pages)))
     (except [wiki.exceptions.DisambiguationError]
       (wikipedia topic :index (inc index)))))
+
+
+;; * Miscellaneous web information
+;; ----------------------------------------------------
+
+(defn weather [[city ""]]
+  "Returns current weather for a city from `wttr.in`."
+  (get-url-md f"https://wttr.in/{city}?format=2"))
+
+(defn location []
+  "Returns the user's location: city, zip, region, latitude, longitude, etc."
+  (let [loc (-> f"http://ip-api.com/json"
+                (get-url-raw)
+                (json.loads))]
+    (.join "\n"
+      ["### Location information from http://ip-api.com:\n"
+       #* (lfor [k v] (.items loc) f"    {k}: {v}")])))
+
+(defn wikinews [[_ ""]]
+  "Returns recent world news articles from wikinews."
+  (let [html (-> "https://en.wikinews.org/wiki/Main_Page"
+                 (get-url-raw)
+                 (lxml.html.fromstring))
+        element (html.get-element-by-id "MainPage_latest_news_text")
+        items (-> element
+                  (.text-content)
+                  (.strip)
+                  (.split "\n"))]
+    (+ "news:\n"
+       (.join "\n" (lfor i items f"- {i}")))))
+  
+(defn ddg-answers [topic * [n 6]]
+  "Returns an 'instant answer' DuckDuckGo web search."
+  (with [ddgs (DDGS)]
+    (let [answers (cut (ddgs.answers topic) n)] 
+      (.join "\n\n"
+             [f"Web search {topic}:"
+              #* (lfor a answers f"{(:url a)}\n{(:text a)}")]))))
+
+(defn ddg-news [topic * [n 6]]
+  "Returns a 'news' DuckDuckGo web search."
+  (with [ddgs (DDGS)]
+    (let [answers (cut (ddgs.news topic) n)] 
+      (.join "\n\n"
+             [f"News search {topic}:"
+              #* (lfor a answers f"Source: {(:source a)}\nDate: {(:date a)}\nURL: {(:url a)}\nLede: {(:body a)}")]))))
+
+
+;; * Shelling out
+;; ----------------------------------------------------
+
+(defn calculator [expression]
+  "The POSIX `bc` arbitrary precision calculator language.
+  Does not know mathematical constants.
+  Returns the evaluated expression"
+  (let [expr (re.sub "[\"']" "" expression)
+        result (subprocess.run ["bc" "-lqi"]
+                               :input (.encode expr)
+                               :capture-output True)
+        answer (-> result.stdout (.decode) (.split) (get -1))]
+    f"$ echo \"{expression}\" | bc -lqi\n{answer}"))
+

@@ -6,13 +6,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trag"
-description = "Templating and web-source utilities for RAG."
+description = "Simple templating and web-source retrieval utilities for RAG."
 authors = [
     {name = "Ati Sharma", email = "ati+trag@agalmic.ltd"},
 ]
 dynamic = ["version", "readme"]
 requires-python = ">=3.11"
-keywords = ["hy", "hylang"]
+keywords = ["hy", "hylang", "rag"]
 license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 4 - Beta",
