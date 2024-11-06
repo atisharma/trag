@@ -1,0 +1,56 @@
+[build-system]
+requires = [
+  "setuptools>=64", "hy"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trag"
+description = "Templating and web-source utilities for RAG."
+authors = [
+    {name = "Ati Sharma", email = "ati+trag@agalmic.ltd"},
+]
+dynamic = ["version", "readme"]
+requires-python = ">=3.11"
+keywords = ["hy", "hylang"]
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Hy"
+]
+dependencies = [
+    "arxiv",
+    "click",
+    "httpx",
+    "hy",
+    "hyjinx",
+    "hyrule",
+    "lxml",
+    "lxml_html_clean",
+    "markdownify",
+    "platformdirs",
+    "wikipedia",
+    "youtube-transcript-api"
+]
+
+[project.urls]
+Repository = "https://github.com/atisharma/trag"
+
+[project.scripts]
+trag = "trag.cli:cli"
+
+[tool.setuptools.dynamic]
+readme = {file = "README.md", content-type = "text/markdown"}
+version = {attr = "trag.__version__"}
+
+[tool.setuptools.package-data]
+"*" = ["*.hy", "*.md", "*.json", "*.toml"]
+
+# ... other project metadata fields as listed in:
+#     https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+
