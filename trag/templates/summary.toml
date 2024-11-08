@@ -1,0 +1,48 @@
+topic = '''
+Below is some text from which you must create a topic summary.
+Your purpose is to express the topic of conversation in one short phrase.
+
+{text}
+'''
+
+
+bullet = '''
+Below is some text from which you must create a list of bullet points that summarizes it.
+Summarize the text as a markdown list, preserving the most interesting, pertinent and important points.
+Your purpose is to summarize the conversation into bullet points.
+
+{text}
+'''
+
+
+paragraph = '''
+Below is some text from which you must create a summary paragraph.
+Please concisely rewrite the following text, preserving the most interesting, pertinent and important points.
+Your purpose is to summarize the conversation into a single paragraph.
+
+{text}
+'''
+
+
+query = '''
+Below is some text from which you must answer a query.
+
+The query is: {query}
+
+{text}
+'''
+
+
+complete_json = '''
+Below is some contextual information and a JSON template to complete.
+You must stick very closely to the format of the template.
+Use the given context to complete the template.
+Give your reply as valid JSON, adhering closely to the format:
+```json
+{json}
+```
+
+The contextual information follows.
+
+{context}
+'''

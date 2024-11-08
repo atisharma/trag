@@ -1,0 +1,115 @@
+extract = '''### Extract
+Hash: {hash}
+Source: {source}
+Added: {added}
+Score: {score}
+{extract}
+---
+'''
+
+
+summary = '''### Summary
+Hash: {hash}
+Source: {source}
+Added: {added}
+Score: {score}
+{summary}
+---
+'''
+
+# TODO contextual summary
+
+rag = """{query}
+
+Now, carefully perform the following instructions, in order, starting each with a new line.
+
+Firstly, decide which of the retrieved documents are relevant to the user's recent input by writing 'Relevant documents:' followed by a markdown list of document identifiers with their source, page and relevance ranking. If none are relevant, or if you do not want to cite any of them, you should instead write 'None'.
+
+Then, write your response to the user's last input in clear, high quality natural english, enclosed in tags <rag:output>like this</rag:output>.
+Use the retrieved documents to help you. Please include in your response markdown footnotes for any citations, like this[^1]. The footnotes should also be within the tags.
+---
+[^1]: document source, page.
+
+
+{documents}
+"""
+
+
+document = """The following document is provided for context, and may be relevant to the user's needs. Where relevant, use and cite the document's source in your reply.
+
+** Document for context **
+Source: {source}
+
+{text}"""
+
+
+summary_relevance = '''Below is an extractive summary of a document extract.
+Based on its summary, you should evaluate the extract for likely contextual relevance to the preceding conversation.
+The relevance should be rated from 0 (irrelevant) to 9 (highly relevant and pertinent).
+You must stick very closely to the format of the template.
+Give your reply as valid JSON, according to the format:
+
+```json
+{{"relevance": 5}}
+```
+
+---
+
+### Summary
+Source: {source}
+Added: {added}
+
+{summary}
+'''
+
+
+url = '''### URL document
+URL: {url}
+accessed: {accessed}
+#### Document
+{document}
+---
+'''
+
+
+arxiv_search = '''### arXiv search
+Search topic: {topic}
+
+{summaries}
+---
+'''
+
+
+arxiv_summary = '''### Summary of "{title}"
+Title: {title}
+Authors: {authors}
+arxiv id: {entry_id}
+Date: {date}
+DOI: {doi}
+**Abstract**
+{summary}")))))
+---
+'''
+
+
+youtube = '''### YouTube transcript context
+Title: {title}
+Author: {author_name}
+youtube id: {youtube_id}
+accessed: {accessed}
+**Transcript**
+{transcript}
+---
+'''
+
+
+wikipedia = '''
+### Wikipedia page {title}
+Title: {title}
+URL: {url}
+**content**
+{content}
+
+Related: {related}
+---
+'''
