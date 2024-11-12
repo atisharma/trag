@@ -8,6 +8,6 @@ trag - templating for retrieval augmented generation.
 import hy
 
 # set the package version
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __version_info__ = __version__.split(".")
 
