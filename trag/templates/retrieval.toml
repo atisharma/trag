@@ -40,7 +40,9 @@ document = """The following document is provided for context, and may be relevan
 ** Document for context **
 Source: {source}
 
-{text}"""
+```
+{text}
+```"""
 
 
 summary_relevance = '''Below is an extractive summary of a document extract.
@@ -63,7 +65,7 @@ Added: {added}
 '''
 
 
-url = '''### URL document
+url = '''** URL document for context **
 URL: {url}
 accessed: {accessed}
 #### Document
@@ -72,7 +74,7 @@ accessed: {accessed}
 '''
 
 
-arxiv_search = '''### arXiv search
+arxiv_search = '''** arXiv search for context **
 Search topic: {topic}
 
 {summaries}
@@ -80,7 +82,7 @@ Search topic: {topic}
 '''
 
 
-arxiv_summary = '''### Summary of "{title}"
+arxiv_summary = '''** Summary of "{title}" for context **
 Title: {title}
 Authors: {authors}
 arxiv id: {entry_id}
@@ -92,7 +94,7 @@ DOI: {doi}
 '''
 
 
-youtube = '''### YouTube transcript context
+youtube = '''** YouTube transcript for context **
 Title: {title}
 Author: {author_name}
 youtube id: {youtube_id}
@@ -103,8 +105,7 @@ accessed: {accessed}
 '''
 
 
-wikipedia = '''
-### Wikipedia page {title}
+wikipedia = '''** Wikipedia page {title} **
 Title: {title}
 URL: {url}
 **content**

@@ -30,8 +30,8 @@ from a variety of non-plaintext sources on the web.
 (require trag.template [deftemplate])
 
 
-; TODO: maybe full text of a single arXiv paper - maybe just chat over file?
-;       consider arXiv latex -> markdown directly (with pandoc)
+; TODO maybe full text of a single arXiv paper - maybe just chat over file?
+; TODO get arXiv latex and consolidate into single doc for context
 
 
 (deftemplate retrieval)
@@ -151,7 +151,7 @@ from a variety of non-plaintext sources on the web.
 ;; * arXiv
 ;; ----------------------------------------------------
 
-(defn arxiv [topic [n 12]]
+(defn arxiv [topic [n 20]]
   "Get `n` relevant arxiv summaries on a topic (as text)."
   (let [results (.results (arxiv-search :query topic :max-results n))
         summaries (lfor paper results
@@ -218,7 +218,7 @@ from a variety of non-plaintext sources on the web.
     (+ "news:\n"
        (.join "\n" (lfor i items f"- {i}")))))
   
-(defn ddg-answers [topic * [n 6]]
+(defn ddg-answers [topic * [n 20]]
   "Returns an 'instant answer' DuckDuckGo web search."
   (with [ddgs (DDGS)]
     (let [answers (cut (ddgs.answers topic) n)] 
@@ -226,7 +226,7 @@ from a variety of non-plaintext sources on the web.
              [f"Web search {topic}:"
               #* (lfor a answers f"{(:url a)}\n{(:text a)}")]))))
 
-(defn ddg-news [topic * [n 6]]
+(defn ddg-news [topic * [n 20]]
   "Returns a 'news' DuckDuckGo web search."
   (with [ddgs (DDGS)]
     (let [answers (cut (ddgs.news topic) n)] 
