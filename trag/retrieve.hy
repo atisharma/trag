@@ -147,7 +147,6 @@ from a variety of non-plaintext sources on the web.
       :document (get-url data))))
   
   
-
 ;; * arXiv
 ;; ----------------------------------------------------
 

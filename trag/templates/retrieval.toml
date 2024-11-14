@@ -26,10 +26,8 @@ Now, carefully perform the following instructions, in order, starting each with 
 Firstly, decide which of the retrieved documents are relevant to the user's recent input by writing 'Relevant documents:' followed by a markdown list of document identifiers with their source, page and relevance ranking. If none are relevant, or if you do not want to cite any of them, you should instead write 'None'.
 
 Then, write your response to the user's last input in clear, high quality natural english, enclosed in tags <rag:output>like this</rag:output>.
-Use the retrieved documents to help you. Please include in your response markdown footnotes for any citations, like this[^1]. The footnotes should also be within the tags.
+You may use the retrieved documents to help you. Please include in your response markdown footnotes for any citations. The footnotes should also be within the tags.
 ---
-[^1]: document source, page.
-
 
 {documents}
 """

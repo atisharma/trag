@@ -1,5 +1,5 @@
 topic = '''
-Below is some text from which you must create a topic summary.
+Below is some text from which you must determine the topic.
 Your purpose is to express the topic of conversation in one short phrase.
 
 {text}
@@ -9,16 +9,22 @@ Your purpose is to express the topic of conversation in one short phrase.
 bullet = '''
 Below is some text from which you must create a list of bullet points that summarizes it.
 Summarize the text as a markdown list, preserving the most interesting, pertinent and important points.
-Your purpose is to summarize the conversation into bullet points.
 
 {text}
 '''
 
 
 paragraph = '''
-Below is some text from which you must create a summary paragraph.
-Please concisely rewrite the following text, preserving the most interesting, pertinent and important points.
-Your purpose is to summarize the conversation into a single paragraph.
+Below is some text from which you must create a single summary paragraph.
+Please concisely rewrite the following text, preserving the most interesting, pertinent, salient and important points.
+
+{text}
+'''
+
+
+summary = '''
+Below is some text from which you must create a summary.
+Please rewrite the following text, preserving the most interesting, pertinent, salient and important points.
 
 {text}
 '''
@@ -39,10 +45,10 @@ You must stick very closely to the format of the template.
 Use the given context to complete the template.
 Give your reply as valid JSON, adhering closely to the format:
 ```json
-{json}
+{json_template}
 ```
 
 The contextual information follows.
 
-{context}
+{text}
 '''
