@@ -26,6 +26,7 @@ classifiers = [
 dependencies = [
     "arxiv",
     "click",
+    "duckduckgo_search",
     "httpx",
     "hy",
     "hyjinx",

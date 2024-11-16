@@ -1,6 +1,6 @@
 topic = '''
 Below is some text from which you must determine the topic.
-Your purpose is to express the topic of conversation in one short phrase.
+Express the topic of conversation in one short sentence, suitable for use as a title.
 
 {text}
 '''
