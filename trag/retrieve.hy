@@ -39,7 +39,7 @@ from a variety of non-plaintext sources on the web.
 ;; * YouTube
 ;; ----------------------------------------------------
 
-(defn youtube-meta [youtube-id]
+(defn youtube-meta [#^ str youtube-id]
   "Return the title and source of the youtube video."
   (let [url f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={youtube-id}&format=json"
         response (.get httpx url)]
@@ -52,7 +52,7 @@ from a variety of non-plaintext sources on the web.
              "author" author})
       otherwise (.raise_for_status response))))
 
-(defn _get-transcript [youtube-id]
+(defn _get-transcript [#^ str youtube-id]
   "Fetch a transcript, failing gracefully where it's not available."
   (try
     (let [languages [(get (locale.getlocale) 0) "en" "en-GB"]
@@ -63,7 +63,7 @@ from a variety of non-plaintext sources on the web.
     (except [TranscriptsDisabled]
       "Transcripts are disable for this video.")))
   
-(defn get-youtube [youtube-id [punctuate False]]
+(defn get-youtube [#^ str youtube-id [punctuate False]]
   "Load (and optionally punctuate) youtube transcript.
   Youtube 'transcripts' are normally just a long list of words with no
   punctuation or identification of the speaker.
@@ -77,13 +77,13 @@ from a variety of non-plaintext sources on the web.
       (do
         ; lazy import here because not everyone will want to spend the VRAM.
         (import deepmultilingualpunctuation [PunctuationModel])
-        (setv text (.restore-punctuation (PunctuationModel) transcript))))
+        (setv transcript (.restore-punctuation (PunctuationModel) transcript))))
     {"transcript" transcript
      "accessed" (now)
      "youtube_id" youtube-id
      #** meta-info}))
 
-(defn youtube [youtube-id #** kwargs]
+(defn youtube [#^ str youtube-id #** kwargs]
   "Load (and optionally punctuate) youtube transcript as text."
   (let [ytd (get-youtube youtube-id #** kwargs)]
     (retrieval "youtube" #** ytd)))
@@ -92,7 +92,7 @@ from a variety of non-plaintext sources on the web.
 ;; * Web URL
 ;; ----------------------------------------------------
 
-(defn get-url-raw [url]
+(defn get-url-raw [#^ str url]
   "Fetch a URL's content unmodified."
   (if (is-url url)
     (let [response (.get httpx url)]
@@ -101,7 +101,7 @@ from a variety of non-plaintext sources on the web.
         otherwise (.raise_for_status response)))
     (raise (ValueError f"Fetching {url} failed (implausible url)."))))
 
-(defn get-url-md [url]
+(defn get-url-md [#^ str url]
   "Fetch a URL's content as cleaned markdown text."
   (let [raw (get-url-raw url)
         cleaner (Cleaner :javascript True :style True)]
@@ -115,7 +115,7 @@ from a variety of non-plaintext sources on the web.
         (.strip)
         (clean-web-md))))
 
-(defn filename-from-url [url]
+(defn filename-from-url [#^ str url]
   "Sanitise a url into a filename."
   (let [parsed_url (urlparse url)
         netloc parsed_url.netloc
@@ -124,7 +124,7 @@ from a variety of non-plaintext sources on the web.
     (+ (re.sub r"[^a-zA-Z0-9_.-]" "_" fname)
        "_" (short-id fname))))
 
-(defn clean-web-md [text * [bad "#`|"]]
+(defn clean-web-md [#^ str text * [bad "#`|"]]
   "Web-sourced markdown strings often have multiple bad characters
   and repeated newlines.
   This function rewrites a string with each line stripped,
@@ -138,7 +138,7 @@ from a variety of non-plaintext sources on the web.
               True)
           (.strip line)))))
 
-(defn url [url]
+(defn url [#^ str url]
   "Load a URL as markdown text."
   (let [data (get-url-md url)]
     (retrieval "url"
@@ -150,7 +150,7 @@ from a variety of non-plaintext sources on the web.
 ;; * arXiv
 ;; ----------------------------------------------------
 
-(defn arxiv [topic [n 20]]
+(defn arxiv [#^ str topic #^ int [n 20]]
   "Get `n` relevant arxiv summaries on a topic (as text)."
   (let [results (.results (arxiv-search :query topic :max-results n))
         summaries (lfor paper results
@@ -171,7 +171,7 @@ from a variety of non-plaintext sources on the web.
 ;; * Wikipedia
 ;; ----------------------------------------------------
 
-(defn wikipedia [topic [index 0]]
+(defn wikipedia [#^ str topic #^ int [index 0]]
   "Get the full Wikipedia page on a topic (as text).
   Disambiguates onto the first disambiguation."
   (try
@@ -191,7 +191,7 @@ from a variety of non-plaintext sources on the web.
 ;; * Miscellaneous web information
 ;; ----------------------------------------------------
 
-(defn weather [[city ""]]
+(defn weather [#^ str [city ""]]
   "Returns current weather for a city from `wttr.in`."
   (get-url-md f"https://wttr.in/{city}?format=2"))
 
@@ -204,7 +204,7 @@ from a variety of non-plaintext sources on the web.
       ["### Location information from http://ip-api.com:\n"
        #* (lfor [k v] (.items loc) f"    {k}: {v}")])))
 
-(defn wikinews [[_ ""]]
+(defn wikinews [#^ str [_ ""]]
   "Returns recent world news articles from wikinews."
   (let [html (-> "https://en.wikinews.org/wiki/Main_Page"
                  (get-url-raw)
@@ -217,7 +217,7 @@ from a variety of non-plaintext sources on the web.
     (+ "news:\n"
        (.join "\n" (lfor i items f"- {i}")))))
   
-(defn ddg-answers [topic * [n 20]]
+(defn ddg-answers [#^ str topic * #^ int [n 20]]
   "Returns an 'instant answer' DuckDuckGo web search."
   (with [ddgs (DDGS)]
     (let [answers (cut (ddgs.answers topic) n)] 
@@ -225,7 +225,7 @@ from a variety of non-plaintext sources on the web.
              [f"Web search {topic}:"
               #* (lfor a answers f"{(:url a)}\n{(:text a)}")]))))
 
-(defn ddg-news [topic * [n 20]]
+(defn ddg-news [#^ str topic * #^ int [n 20]]
   "Returns a 'news' DuckDuckGo web search."
   (with [ddgs (DDGS)]
     (let [answers (cut (ddgs.news topic) n)] 
@@ -237,7 +237,7 @@ from a variety of non-plaintext sources on the web.
 ;; * Shelling out
 ;; ----------------------------------------------------
 
-(defn calculator [expression]
+(defn calculator [#^ str expression]
   "The POSIX `bc` arbitrary precision calculator language.
   Does not know mathematical constants.
   Returns the evaluated expression"
