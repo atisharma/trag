@@ -23,7 +23,7 @@ Please concisely rewrite the following text, preserving the most interesting, pe
 
 
 summary = '''
-Below is some text from which you must create a summary.
+Below is some text from which you must create a comprehensive summary.
 Please rewrite the following text, preserving the most interesting, pertinent, salient and important points.
 
 {text}
