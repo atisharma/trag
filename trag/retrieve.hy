@@ -6,7 +6,7 @@ from a variety of non-plaintext sources on the web.
 (require hyrule.argmove [-> ->>])
 
 (import hyrule [inc dec])
-(import hyjinx.lib [first is-url now])
+(import hyjinx.lib [first is-url now short-id])
 
 (import httpx)
 (import json)
