@@ -144,7 +144,7 @@ from a variety of non-plaintext sources on the web.
     (retrieval "url"
       :accessed (now)
       :url url
-      :document (get-url data))))
+      :document data)))
   
   
 ;; * arXiv
