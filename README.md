@@ -41,3 +41,7 @@ Proceeds similarly,
 ```bash
 $ trag --help
 ```
+
+## Alternatives
+
+If you like hippos, you might be interested in [chonkie](https://github.com/bhavnicksm/chonkie).
