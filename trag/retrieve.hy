@@ -33,24 +33,27 @@ from a variety of non-plaintext sources on the web.
 ; TODO maybe full text of a single arXiv paper - maybe just chat over file?
 ; TODO get arXiv latex and consolidate into single doc for context
 
-
 (deftemplate retrieval)
 
 ;; * YouTube
 ;; ----------------------------------------------------
 
 (defn youtube-meta [#^ str youtube-id]
-  "Return the title and source of the youtube video."
+  "Return a dict of the title, author and other metadata of the youtube video."
   (let [url f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={youtube-id}&format=json"
         response (.get httpx url)]
     (match response.status-code
-      200 (let [data (.json response)
-                title (:title data "No title provided")
-                author (:author-name data "No author provided")]
-            {#** data
-             "title" title
-             "author" author})
+      200 (let [data (.json response)]
+            {"title" (:title data "No title provided")
+             "author" (:author-name data "No author provided")
+             "version" (:version data "No version provided")
+             #** data})
       otherwise (.raise_for_status response))))
+
+(defn youtube-meta-str [#^ str youtube-id]
+  "Return the title, author, version and source of the youtube video."
+  (let [metadata (youtube-meta youtube-id)]
+    (.join "\n" [(:title metadata) (:author metadata) (:version metadata)])))
 
 (defn _get-transcript [#^ str youtube-id]
   "Fetch a transcript, failing gracefully where it's not available."
@@ -81,6 +84,7 @@ from a variety of non-plaintext sources on the web.
     {"transcript" transcript
      "accessed" (now)
      "youtube_id" youtube-id
+     "version" "n/a"
      #** meta-info}))
 
 (defn youtube [#^ str youtube-id #** kwargs]
@@ -193,6 +197,7 @@ from a variety of non-plaintext sources on the web.
 
 (defn weather [#^ str [city ""]]
   "Returns current weather for a city from `wttr.in`."
+  ;; move to https://open-meteo.com/
   (get-url-md f"https://wttr.in/{city}?format=2"))
 
 (defn location []

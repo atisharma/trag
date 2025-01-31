@@ -96,6 +96,7 @@ youtube = '''** YouTube transcript for context **
 Title: {title}
 Author: {author_name}
 youtube id: {youtube_id}
+version: {version}
 accessed: {accessed}
 **Transcript**
 {transcript}
