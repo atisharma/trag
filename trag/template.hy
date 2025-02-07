@@ -81,9 +81,10 @@ The module includes the following main functions and macros:
   For example, `(deftemplate \"context\")` creates a function
   `context` that when called like `(context \"world\" #** kwargs)`,
   applies the `world` template defined in `context.toml`."
-  (let [docstr (.format "Applies the kwargs to one of the `{templates}`\ntemplates defined in `{template_file}.toml`, specified by the `template-name` arg."
-                        :template-file template-file
-                        :templates (.join "`, `" (.keys (tomllib.loads (slurp (find-template template-file))))))
+  (let [docstr (.format "Applies the kwargs to one of the templates\n defined in `{template_file}.toml`, specified by the `template-name` arg."
+                        :template-file template-file)
+                        ; cannot find the template at compile-time for calling modules
+                        ;:templates (.join "`,\n`" (.keys (tomllib.loads (slurp (find-template template-file)))))
         name (cond
                (isinstance template-file hy.models.Symbol) (str template-file)
                (isinstance template-file str) template-file
