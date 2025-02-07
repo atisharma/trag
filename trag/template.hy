@@ -15,6 +15,7 @@ The module includes the following main functions and macros:
 
 (import tomllib)
 (import pathlib [Path])
+(import platformdirs [user-config-dir])
 
 
 (defclass TemplateError [RuntimeError])
@@ -27,7 +28,7 @@ The module includes the following main functions and macros:
   (when (.exists path)
     path))
 
-(defn find-toml-file [#^ str name]
+(defn find-toml-file [#^ str name * [caller "."]]
   "Locate a toml file.
   It will look under, in order:
     - `$pwd/templates/`         -- templates in the current dir
@@ -38,8 +39,13 @@ The module includes the following main functions and macros:
     (or
       (file-exists (Path "templates" fname))
       (file-exists (Path (user-config-dir __package__) fname))
-      (file-exists (Path (os.path.dirname __file__) "templates" fname))
-      (raise (FileNotFoundError fname)))))
+      (file-exists (Path (. (Path caller) parent) "templates" fname))
+      (file-exists (Path (. (Path __file__) parent) "templates" fname))
+      (raise (FileNotFoundError [fname
+                                 (Path "templates" fname)
+                                 (Path (user-config-dir __package__) fname)
+                                 (Path (. (Path caller) parent) "templates" fname)
+                                 (Path (. (Path __file__) parent) "templates" fname)])))))
 
 (defn load-template [#^ Path fname #* keys]
   "Get values in toml file `fname` like a hashmap, but default to None."
@@ -51,27 +57,26 @@ The module includes the following main functions and macros:
     (except [KeyError]
       None)))
   
-(defn find-templates []
+(defn standard-templates []
   "All standard template toml files.
   Returns a list of template names (not paths)"
   (lfor template-file (filenames (. (Path __file__) parent) "templates")
     :if (.endswith template-file ".toml")
     (. (Path template-file) stem)))
 
-(defn find-template [#^ str name]
+(defn find-template [#^ str name #** kwargs]
   "Returns the Path of the template name."
-  (let [fname (+ name ".toml")]
-    (Path (. (Path __file__) parent) "templates" fname)))
+  (find-toml-file name #** kwargs))
 
 ;; * template completion
 ;; -----------------------------------------------------------------------------
 
-(defn complete-template [#^ str template-file #^ str template-name #** kwargs]
+(defn complete-template [#^ str template-file #^ str template-name * [caller "."] #** kwargs]
   "Locate a template toml file under `$module_dir/templates`.
   Load the template with name `template-file.toml` from the templates directory
   and apply python string `.format` method.
   Replace each `{kwarg}` with its value to form the one-shot user prompt."
-  (let [template (load-template (find-template template-file) template-name)]
+  (let [template (load-template (find-template template-file :caller caller) template-name)]
     (if template
       (.format template #** kwargs)
       (raise (TemplateError f"Template '{template-name}' not found in file '{template-file}.toml'.")))))
@@ -94,5 +99,5 @@ The module includes the following main functions and macros:
     `(defn ~template-file [template-name #** kwargs]
        ~docstr
        (import trag.template [complete-template])
-       (complete-template ~name template-name #** kwargs))))
+       (complete-template ~name template-name :caller __file__ #** kwargs))))
 
